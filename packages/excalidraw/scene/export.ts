@@ -494,6 +494,43 @@ export const exportToSvg = async (
 
   // ---------------------------------------------------------------------------
 
+  // ---------------------------------------------------------------------------
+  // Fix: Make text inside shapes with URLs clickable by wrapping <text> in <a>
+  // and setting pointer-events:none on text without their own URL
+  // ---------------------------------------------------------------------------
+
+  const allTexts = svgRoot.querySelectorAll("text");
+
+  allTexts.forEach((textNode) => {
+    const parent = textNode.parentElement;
+
+    // If the parent is already an <a> element, do nothing
+    if (parent?.tagName.toLowerCase() === "a") {
+      return;
+    }
+
+    const shapeWithLink =
+      parent?.getAttribute?.("xlink:href") || parent?.getAttribute?.("href");
+
+    if (shapeWithLink) {
+      // Wrap <text> in <a> with the shape's href
+      const anchor = document.createElementNS(SVG_NS, "a");
+      anchor.setAttribute("href", shapeWithLink);
+      anchor.setAttribute("target", "_blank");
+
+      // Move <text> into <a>
+      if (parent) {
+        parent.replaceChild(anchor, textNode);
+      }
+      anchor.appendChild(textNode);
+    } else {
+      // If no href on parent and text has no own link, disable pointer-events
+      textNode.setAttribute("pointer-events", "none");
+    }
+  });
+
+  console.log("[SVG PATCH] Text clickable export patch applied");
+
   return svgRoot;
 };
 
