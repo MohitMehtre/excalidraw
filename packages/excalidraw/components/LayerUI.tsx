@@ -182,7 +182,7 @@ const LayerUI = ({
           islandPadding: 1,
           collabMarginLeft: 8,
         };
-
+  const [toolbarCollapsed, setToolbarCollapsed] = React.useState(false);
   const TunnelsJotaiProvider = tunnels.tunnelsJotai.Provider;
 
   const [eyeDropperState, setEyeDropperState] = useAtom(activeEyeDropperAtom);
@@ -337,43 +337,63 @@ const LayerUI = ({
                               appState.stylesPanelMode === "compact",
                           })}
                         >
-                          <HintViewer
-                            appState={appState}
-                            isMobile={device.editor.isMobile}
-                            device={device}
-                            app={app}
-                          />
-                          {heading}
-                          <Stack.Row gap={spacing.toolbarInnerRowGap}>
-                            <PenModeButton
-                              zenModeEnabled={appState.zenModeEnabled}
-                              checked={appState.penMode}
-                              onChange={() => onPenModeToggle(null)}
-                              title={t("toolBar.penMode")}
-                              penDetected={appState.penDetected}
-                            />
-                            <LockButton
-                              checked={appState.activeTool.locked}
-                              onChange={onLockToggle}
-                              title={t("toolBar.lock")}
-                            />
-
-                            <div className="App-toolbar__divider" />
-
-                            <HandButton
-                              checked={isHandToolActive(appState)}
-                              onChange={() => onHandToolToggle()}
-                              title={t("toolBar.hand")}
-                              isMobile
-                            />
-
-                            <ShapesSwitcher
-                              setAppState={setAppState}
-                              activeTool={appState.activeTool}
-                              UIOptions={UIOptions}
+                          <div className="toolbar-header">
+                            <HintViewer
+                              appState={appState}
+                              isMobile={device.editor.isMobile}
+                              device={device}
                               app={app}
                             />
-                          </Stack.Row>
+                            {heading}
+
+                            <button
+                              className="toolbar-collapse-btn"
+                              aria-label={
+                                toolbarCollapsed
+                                  ? "Expand toolbar"
+                                  : "Collapse toolbar"
+                              }
+                              onClick={() =>
+                                setToolbarCollapsed((prev) => !prev)
+                              }
+                              // style={{ float: "right" }}
+                            >
+                              {toolbarCollapsed ? "⮞" : "⮜"}
+                            </button>
+                          </div>
+
+                          {!toolbarCollapsed && (
+                            <Stack.Row gap={spacing.toolbarInnerRowGap}>
+                              <PenModeButton
+                                zenModeEnabled={appState.zenModeEnabled}
+                                checked={appState.penMode}
+                                onChange={() => onPenModeToggle(null)}
+                                title={t("toolBar.penMode")}
+                                penDetected={appState.penDetected}
+                              />
+                              <LockButton
+                                checked={appState.activeTool.locked}
+                                onChange={onLockToggle}
+                                title={t("toolBar.lock")}
+                              />
+
+                              <div className="App-toolbar__divider" />
+
+                              <HandButton
+                                checked={isHandToolActive(appState)}
+                                onChange={() => onHandToolToggle()}
+                                title={t("toolBar.hand")}
+                                isMobile
+                              />
+
+                              <ShapesSwitcher
+                                setAppState={setAppState}
+                                activeTool={appState.activeTool}
+                                UIOptions={UIOptions}
+                                app={app}
+                              />
+                            </Stack.Row>
+                          )}
                         </Island>
                         {isCollaborating && (
                           <Island
